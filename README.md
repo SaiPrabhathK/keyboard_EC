@@ -55,3 +55,19 @@ You can use the function headers provided,
 but you do not have to.
 The only constraint is that you use a custom EC,
 that you write yourself.
+
+## Mutation and recombination
+You need to write permutation-friendly recombination and mutation operators.
+Ideally, they would capitalize on the modularity in design space.
+* https://www.cnsr.dev/index_files/Classes/EvolutionaryComputation/Content/04-RepresentMutateRecombine.html
+
+## Diversity and population management
+Your EC must maintain sufficient diversity,
+while at the same time selecting the right individuals.
+* https://www.cnsr.dev/index_files/Classes/EvolutionaryComputation/Content/05-FitnessSelection.html
+
+## Tuning, Control, and Meta-optimization
+It's very unlikely your EC will find the best solution the first time.
+You must tune, or even control your EC's parameters to meta-optimize.
+* https://www.cnsr.dev/index_files/Classes/EvolutionaryComputation/Content/07-ParameterTuning.html
+* https://www.cnsr.dev/index_files/Classes/EvolutionaryComputation/Content/08-ParameterControl.html
