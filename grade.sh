@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rm results.txt
-timeout 500 python3 keyboard.py <<<anything
+timeout 1000 python3 keyboard.py <<<anything
 test -f results.txt && grade=$(cat results.txt) || grade=0
 mypy --strict --disallow-any-explicit ./*.py && ((grade = grade + 5))
 black --check ./*.py && ((grade = grade + 5))
