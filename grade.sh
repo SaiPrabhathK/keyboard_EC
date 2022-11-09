@@ -12,4 +12,7 @@ then
     echo "You can compete for the remaining 10 points!"
     echo "Use tuning, control, and meta-optimization to find better solutions."
     echo "If you have questions about how grading happens, just look at this script."
+    exit 0
+else
+    exit 1
 fi
