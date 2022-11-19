@@ -15,6 +15,7 @@ import random
 from typing import TypedDict
 import math
 import json
+import string
 
 # DO NOT MODIFY >>>>
 # First, what should our representation look like?
@@ -107,7 +108,7 @@ def initialize_individual(genome: str, fitness: int) -> Individual:
     Calls:          ?
     Example doctest:
     """
-    print('Delete this and write')
+    return Individual({"genome": genome, "fitness": fitness})
 
 
 def initialize_pop(example_genome: str, pop_size: int) -> Population:
@@ -121,7 +122,14 @@ def initialize_pop(example_genome: str, pop_size: int) -> Population:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    population = []
+    for i in range(pop_size):
+        new_genome_list = list(example_genome)
+        random.shuffle(new_genome_list)
+        new_genome = "".join(new_genome_list)
+        new_individual = initialize_individual(new_genome, 0)
+        population.append(new_individual)
+    return population
 
 
 def recombine_pair(parent1: Individual, parent2: Individual) -> Population:
@@ -135,7 +143,64 @@ def recombine_pair(parent1: Individual, parent2: Individual) -> Population:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    # print("Delete this and write")
+    random_numbers = []
+    for i in {1, 2}:
+        random_numbers.append(random.choice(range(len(parent1["genome"]) - 1)))
+    # print(random_numbers)
+    position1 = min(random_numbers)
+    position2 = max(random_numbers) + 1
+    child1 = [""] * len(parent1["genome"])
+    child2 = [""] * len(parent2["genome"])
+
+    child1[position1:position2:1] = parent1["genome"][position1:position2]
+    child2[position1:position2:1] = parent2["genome"][position1:position2]
+    # print(child1)
+
+    for i in range(position1, position2):
+        while parent2["genome"][i] not in child1:
+            k = parent2["genome"][i]
+            loc = parent2["genome"].index(parent1["genome"][i])
+            if child1[loc] == "":
+                child1[loc] = k
+            else:
+                j = parent2["genome"].index(child1[loc])
+                while (position1 <= j and j <= position2) and child1[j] != "":
+                    j = parent2["genome"].index(child1[j])
+                child1[j] = k
+
+        while parent1["genome"][i] not in child2:
+            k = parent1["genome"][i]
+            loc = parent1["genome"].index(parent2["genome"][i])
+            if child2[loc] == "":
+                child2[loc] = k
+            else:
+                j = parent1["genome"].index(child2[loc])
+                while (position1 <= j and j <= position2) and child2[j] != "":
+                    j = parent1["genome"].index(child2[j])
+                child2[j] = k
+
+    while "" in child1:
+        child1[child1.index("")] = parent2["genome"][child1.index("")]
+
+    while "" in child2:
+        child2[child2.index("")] = parent1["genome"][child2.index("")]
+    """
+    if len(set(child1)) == len(child1):
+        print("set 1")
+    else:
+        print("has duplicates 1")
+
+    if len(set(child2)) == len(child2):
+        print("set 2")
+    else:
+        print("has duplicates 2")
+    """
+    offspring1 = "".join(child1)
+    offspring2 = "".join(child2)
+    return list(
+        (initialize_individual(offspring1, 0), initialize_individual(offspring2, 0))
+    )
 
 
 def recombine_group(parents: Population, recombine_rate: float) -> Population:
@@ -150,7 +215,15 @@ def recombine_group(parents: Population, recombine_rate: float) -> Population:
     Modifies:       Nothing
     Calls:          ?
     """
-    print("Delete this and write")
+    recombined_population = []
+    for i in range(0, len(parents) - 1, 2):
+
+        if recombine_rate > random.random():
+            recombined_population.extend(recombine_pair(parents[i], parents[i + 1]))
+        else:
+            recombined_population.append(parents[i])
+            recombined_population.append(parents[i + 1])
+    return recombined_population
 
 
 def mutate_individual(parent: Individual, mutate_rate: float) -> Individual:
@@ -164,7 +237,23 @@ def mutate_individual(parent: Individual, mutate_rate: float) -> Individual:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    mutated_genome = ""
+    genome_list = list(parent["genome"])
+    genome_size = len(parent["genome"])
+    for i in parent["genome"]:
+        if random.random() < mutate_rate:
+            position_1 = random.choice(range(genome_size))
+            position_2 = random.choice(range(genome_size))
+            if position_1 != position_2:
+                temp = genome_list[position_1]
+                genome_list[position_1] = genome_list[position_2]
+                genome_list[position_2] = temp
+            else:
+                continue
+        else:
+            continue
+    mutated_genome = "".join(genome_list)
+    return initialize_individual(mutated_genome, 0)
 
 
 def mutate_group(children: Population, mutate_rate: float) -> Population:
@@ -178,7 +267,10 @@ def mutate_group(children: Population, mutate_rate: float) -> Population:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    mutated_population = []
+    for x in children:
+        mutated_population.append(mutate_individual(x, mutate_rate))
+    return mutated_population
 
 
 # DO NOT MODIFY >>>>
@@ -245,7 +337,7 @@ def evaluate_individual(individual: Individual) -> None:
 def evaluate_group(individuals: Population) -> None:
     """
     Purpose:        Computes and modifies the fitness for population
-    Parameters:     Objective string, Population
+    Parameters:     example_genome string, Population
     User Input:     no
     Prints:         no
     Returns:        None
@@ -253,7 +345,8 @@ def evaluate_group(individuals: Population) -> None:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    for x in individuals:
+        evaluate_individual(x)
 
 
 def rank_group(individuals: Population) -> None:
@@ -267,7 +360,12 @@ def rank_group(individuals: Population) -> None:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    ranked_individuals = []
+    ranked_individuals = sorted(
+        individuals, key=lambda individual: individual["fitness"], reverse=False
+    )
+    for x in range(len(ranked_individuals)):
+        individuals[x] = ranked_individuals[x]
 
 
 def parent_select(individuals: Population, number: int) -> Population:
@@ -281,7 +379,11 @@ def parent_select(individuals: Population, number: int) -> Population:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    fitness_list = []
+    for x in individuals:
+        fitness_list.append(x["fitness"])
+    selected_parents = random.choices(individuals, weights=fitness_list, k=number)
+    return selected_parents
 
 
 def survivor_select(individuals: Population, pop_size: int) -> Population:
@@ -295,7 +397,7 @@ def survivor_select(individuals: Population, pop_size: int) -> Population:
     Calls:          ?
     Example doctest:
     """
-    print("Delete this and write")
+    return individuals[:pop_size]
 
 
 def evolve(example_genome: str, pop_size: int = 100) -> Population:
@@ -314,7 +416,29 @@ def evolve(example_genome: str, pop_size: int = 100) -> Population:
     # Type 's' to 'step' deeper
     # Type 'n' to 'next' over
     # Type 'f' or 'r' to finish/return a function call and go back to caller
-    print("Delete this and write")
+    # print("Delete this and write")
+    population = initialize_pop(example_genome=example_genome, pop_size=pop_size)
+    evaluate_group(individuals=population)
+    rank_group(individuals=population)
+    best_fitness = population[0]["fitness"]
+    dvorak = Individual(genome=DVORAK, fitness=0)
+    evaluate_individual(dvorak)
+    perfect_fitness = dvorak["fitness"]
+    counter = 0
+    while best_fitness > 23.9949:
+        counter += 1
+        parents = parent_select(individuals=population, number=80)
+        children = recombine_group(parents=parents, recombine_rate=0.9)
+        mutate_rate = ((best_fitness / perfect_fitness) - 1) / 5
+        mutants = mutate_group(children=children, mutate_rate=0.05)
+        evaluate_group(individuals=mutants)
+        everyone = population + mutants
+        rank_group(individuals=everyone)
+        population = survivor_select(individuals=everyone, pop_size=pop_size)
+        if best_fitness != population[0]["fitness"]:
+            best_fitness = population[0]["fitness"]
+            print("Iteration number", counter, "with best individual", population[0])
+    return population
 
 
 # Seed for base grade.
@@ -412,3 +536,5 @@ if __name__ == "__main__":
             f.write(population[0]["genome"] + "\n")
             f.write(str(population[0]["fitness"]))
 # <<<< DO NOT MODIFY
+
+# %%
