@@ -421,15 +421,11 @@ def evolve(example_genome: str, pop_size: int = 100) -> Population:
     evaluate_group(individuals=population)
     rank_group(individuals=population)
     best_fitness = population[0]["fitness"]
-    dvorak = Individual(genome=DVORAK, fitness=0)
-    evaluate_individual(dvorak)
-    perfect_fitness = dvorak["fitness"]
     counter = 0
-    while best_fitness > 23.9949:
+    while counter < 7000:
         counter += 1
         parents = parent_select(individuals=population, number=80)
         children = recombine_group(parents=parents, recombine_rate=0.9)
-        mutate_rate = ((best_fitness / perfect_fitness) - 1) / 5
         mutants = mutate_group(children=children, mutate_rate=0.05)
         evaluate_group(individuals=mutants)
         everyone = population + mutants
